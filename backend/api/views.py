@@ -5,7 +5,7 @@ from core.models import Product
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from products.serializers import ProductSerializer
 
 
 # def api_home(request):
@@ -24,8 +24,11 @@ from rest_framework.response import Response
 
 @api_view(['GET','POST'])
 def api_home(request):
-    model_data = Product.objects.all().order_by("?").first()
-    data = {}
-    if model_data:
-        data = model_to_dict(model_data,fields = ['id','title'])
+    
+    data = request.data
+    serializer = ProductSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        data = serializer.save()
+        print(data)
+        data = serializer.data
     return Response(data)
