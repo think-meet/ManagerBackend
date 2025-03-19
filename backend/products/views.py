@@ -7,9 +7,9 @@ from django.shortcuts import get_object_or_404
 from core.models import Product
 from .serializers import ProductSerializer
 
-from api.mixin import StaffEditorPermissionMixin
+from api.mixin import StaffEditorPermissionMixin,UserQuerySetMixin
 
-class ProductListCreateApiView(StaffEditorPermissionMixin,generics.ListCreateAPIView):
+class ProductListCreateApiView(UserQuerySetMixin,StaffEditorPermissionMixin,generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     
@@ -20,7 +20,13 @@ class ProductListCreateApiView(StaffEditorPermissionMixin,generics.ListCreateAPI
         
         if content is None:
             content = title
-        serializer.save(content=content)
+        serializer.save(user=self.request.user,content=content)
+        
+    # def get_queryset(self, *args, **kwargs):
+    #     qs =  super().get_queryset(*args,**kwargs)
+    #     request = self.request
+    #     print(request.user)
+    #     return qs.filter(user=request.user)
     
     
 product_list_create_view = ProductListCreateApiView.as_view()
